@@ -43,7 +43,7 @@ func main() {
 
 结构体字段主要包括：
 * 控制某些功能开关的bool类型值
-* 组合RouterGroup结构，实现其功能
+* RouterGroup结构，
 * pool缓存池，控制gin.Context分配与释放，提升http请求时性能
 * trees路由树，存储路由和handle方法映射
 
@@ -102,8 +102,9 @@ func main() {
 	    engine.pool.Put(c)
     }
 
-
 ```
+
+
 
 ## http请求处理流程
 
@@ -154,6 +155,50 @@ func main() {
 ## 路由注册流程
 
 
+什么是路由？就是根据不同的URL，找到不同的处理函数。
+
+`net/http`的路由匹配规则过于简单，根本不符合RESTful规则。所以基本所有的go框架主要干的一件事就是重写`net/http`的route。
+gin框架通过以下数据结构实现了路由：
+* `IRouter`：接口类型，定义了所有路由的处理接口，包括单个路由和组路由
+* `IRoutes`：接口类型，定义了所有路由的处理接口
+* `RouterGroup`：结构体类型，用于在内部配置路由。每个RouterGroup关联一个前缀和一个处理数组
+
+`RouterGroup`实现 GET/POST/DELETE...等HTTP相关函数，最终都会调用handle函数，注册到gin的路由树上。主要文件在`routergroup.go`中
+
 ### gin.RouterGroup
 
-什么是路由？就是根据不同的URL，找到不同的处理函数。
+```go
+type IRouter interface {
+	IRoutes
+	Group(string, ...HandlerFunc) *RouterGroup
+}
+
+type IRoutes interface {
+	Use(...HandlerFunc) IRoutes
+
+	Handle(string, string, ...HandlerFunc) IRoutes
+	Any(string, ...HandlerFunc) IRoutes
+	GET(string, ...HandlerFunc) IRoutes
+	POST(string, ...HandlerFunc) IRoutes
+	DELETE(string, ...HandlerFunc) IRoutes
+	PATCH(string, ...HandlerFunc) IRoutes
+	PUT(string, ...HandlerFunc) IRoutes
+	OPTIONS(string, ...HandlerFunc) IRoutes
+	HEAD(string, ...HandlerFunc) IRoutes
+	Match([]string, string, ...HandlerFunc) IRoutes
+
+	StaticFile(string, string) IRoutes
+	StaticFileFS(string, string, http.FileSystem) IRoutes
+	Static(string, string) IRoutes
+	StaticFS(string, http.FileSystem) IRoutes
+}
+
+type RouterGroup struct {
+	Handlers HandlersChain
+	basePath string
+	engine   *Engine
+	root     bool
+}
+
+
+```
