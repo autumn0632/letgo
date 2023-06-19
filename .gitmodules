@@ -1,3 +1,6 @@
 [submodule "source/gin"]
 	path = source/gin
 	url = git@github.com:letgo0632/gin.git
+[submodule "source/nsq"]
+	path = source/nsq
+	url = git@github.com:letgo0632/nsq.git
