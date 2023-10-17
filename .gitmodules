@@ -4,3 +4,6 @@
 [submodule "source/nsq"]
 	path = source/nsq
 	url = git@github.com:letgo0632/nsq.git
+[submodule "source/groupcache"]
+	path = source/groupcache
+	url = git@github.com:autumn0632/groupcache.git
